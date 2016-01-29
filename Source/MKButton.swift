@@ -11,6 +11,8 @@ import UIKit
 @IBDesignable
 public class MKButton : UIButton
 {
+    var animate = false
+    
     @IBInspectable public var maskEnabled: Bool = true {
         didSet {
             mkLayer.enableMask(maskEnabled)
@@ -94,26 +96,28 @@ public class MKButton : UIButton
 
     // MARK - location tracking methods
     override public func beginTrackingWithTouch(touch: UITouch, withEvent event: UIEvent?) -> Bool {
-        if rippleLocation == .TapLocation {
-            mkLayer.didChangeTapLocation(touch.locationInView(self))
+        if self.animate {
+            if rippleLocation == .TapLocation {
+                mkLayer.didChangeTapLocation(touch.locationInView(self))
+            }
+
+            // rippleLayer animation
+            mkLayer.animateScaleForCircleLayer(0.45, toScale: 1.0, timingFunction: rippleAniTimingFunction, duration: CFTimeInterval(self.rippleAniDuration))
+
+            // backgroundLayer animation
+            if backgroundAniEnabled {
+                mkLayer.animateAlphaForBackgroundLayer(backgroundAniTimingFunction, duration: CFTimeInterval(self.backgroundAniDuration))
+            }
+
+            // shadow animation for self
+            if shadowAniEnabled {
+                let shadowRadius = layer.shadowRadius
+                let shadowOpacity = layer.shadowOpacity
+                let duration = CFTimeInterval(shadowAniDuration)
+                mkLayer.animateSuperLayerShadow(10, toRadius: shadowRadius, fromOpacity: 0, toOpacity: shadowOpacity, timingFunction: shadowAniTimingFunction, duration: duration)
+            }
         }
-
-        // rippleLayer animation
-        mkLayer.animateScaleForCircleLayer(0.45, toScale: 1.0, timingFunction: rippleAniTimingFunction, duration: CFTimeInterval(self.rippleAniDuration))
-
-        // backgroundLayer animation
-        if backgroundAniEnabled {
-            mkLayer.animateAlphaForBackgroundLayer(backgroundAniTimingFunction, duration: CFTimeInterval(self.backgroundAniDuration))
-        }
-
-        // shadow animation for self
-        if shadowAniEnabled {
-            let shadowRadius = layer.shadowRadius
-            let shadowOpacity = layer.shadowOpacity
-            let duration = CFTimeInterval(shadowAniDuration)
-            mkLayer.animateSuperLayerShadow(10, toRadius: shadowRadius, fromOpacity: 0, toOpacity: shadowOpacity, timingFunction: shadowAniTimingFunction, duration: duration)
-        }
-
+        
         return super.beginTrackingWithTouch(touch, withEvent: event)
     }
 }

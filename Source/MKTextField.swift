@@ -11,6 +11,8 @@ import QuartzCore
 
 @IBDesignable
 public class MKTextField : UITextField {
+    var animate = false
+    
     @IBInspectable public var padding: CGSize = CGSize(width: 5, height: 5)
     @IBInspectable public var floatingLabelBottomMargin: CGFloat = 2.0
     @IBInspectable public var floatingPlaceholderEnabled: Bool = false
@@ -115,11 +117,13 @@ public class MKTextField : UITextField {
     }
 
     override public func beginTrackingWithTouch(touch: UITouch, withEvent event: UIEvent?) -> Bool {
-        mkLayer.didChangeTapLocation(touch.locationInView(self))
+        if self.animate {
+            mkLayer.didChangeTapLocation(touch.locationInView(self))
 
-        mkLayer.animateScaleForCircleLayer(0.45, toScale: 1.0, timingFunction: MKTimingFunction.Linear, duration: CFTimeInterval(self.rippleAniDuration))
-        mkLayer.animateAlphaForBackgroundLayer(MKTimingFunction.Linear, duration: CFTimeInterval(self.backgroundAniDuration))
-
+            mkLayer.animateScaleForCircleLayer(0.45, toScale: 1.0, timingFunction: MKTimingFunction.Linear, duration: CFTimeInterval(self.rippleAniDuration))
+            mkLayer.animateAlphaForBackgroundLayer(MKTimingFunction.Linear, duration: CFTimeInterval(self.backgroundAniDuration))
+        }
+        
         return super.beginTrackingWithTouch(touch, withEvent: event)
     }
 
